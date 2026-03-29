@@ -3,6 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 from .config import EVENTS, REGISTRATION_EVENTS
 
 BACK_BUTTON_TEXT = "◀️ Назад"
+MY_REGISTRATIONS_TEXT = "📋 Мои регистрации"
 
 
 def main_menu_keyboard() -> ReplyKeyboardMarkup:
@@ -10,6 +11,7 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="📅 Расписание мероприятий")],
         [KeyboardButton(text="ℹ️ Информация о мероприятиях")],
         [KeyboardButton(text="📝 Зарегистрироваться на мероприятие")],
+        [KeyboardButton(text=MY_REGISTRATIONS_TEXT)],
     ]
     return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 

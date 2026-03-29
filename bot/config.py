@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,6 +12,9 @@ ADMIN_IDS: list[int] = [
 
 DATA_FILE: str = os.getenv("DATA_FILE", "data/registrations.json")
 USERS_FILE: str = os.getenv("USERS_FILE", "data/users.json")
+REMINDERS_SENT_FILE: str = os.getenv("REMINDERS_SENT_FILE", "data/reminders_sent.json")
+
+REMINDER_HOUR_MSK: int = int(os.getenv("REMINDER_HOUR_MSK", "10"))
 
 EVENTS: list[str] = [
     "Хакатон",
@@ -42,6 +46,26 @@ EXTERNAL_REGISTRATIONS: dict[str, str] = {
     "Хакатон": "https://clck.ru/3SpJUC",
     "Концерт ТьМЫ": "https://clck.ru/3SpJft",
     "Космоквиз": "https://clck.ru/3SpJpu",
+}
+
+REMINDER_EVENTS: list[str] = [e for e in REGISTRATION_EVENTS if e not in EXTERNAL_REGISTRATIONS]
+
+EVENT_START_DATES: dict[str, list[date]] = {
+    "Спутник": [date(2026, 4, 10)],
+    "Ярмарка вакансий": [date(2026, 4, 10)],
+    "Space-talks": [date(2026, 4, 10)],
+    "Ярмарка и запуск ракет": [date(2026, 4, 11)],
+    "Галактик": [date(2026, 4, 12)],
+    "Презентация кафедр": [date(2026, 4, 13)],
+}
+
+EVENT_REMINDER_SNIPPETS: dict[str, str] = {
+    "Спутник": "⏰ 12:00–22:00\n📍 Клуб общежития МФТИ №3 (Первомайская ул., 30, корп. 3)",
+    "Ярмарка вакансий": "⏰ 11:00–16:00\n📍 Главный корпус МФТИ, фойе КЗ (Институтский пер., 9, этаж 2)",
+    "Space-talks": "⏰ 18:30–20:00\n📍 Физтех.Клуб (Первомайская ул., 3А, этаж 2)",
+    "Ярмарка и запуск ракет": "⏰ 11:00–16:00\n📍 Лесопарковая зона рядом с кампусом МФТИ",
+    "Галактик": "⏰ 19:00–21:00\n📍 Бойцовский Клуб (Московское ш., 3)",
+    "Презентация кафедр": "⏰ 13:30–15:30\n📍 Физтех.Клуб (Первомайская ул., 3А, этаж 2)",
 }
 
 EVENT_DESCRIPTIONS: dict[str, str] = {

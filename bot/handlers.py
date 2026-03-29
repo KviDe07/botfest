@@ -9,6 +9,7 @@ from aiogram.types import FSInputFile, LinkPreviewOptions
 from .config import ADMIN_IDS, REGISTRATION_EVENTS, EXTERNAL_REGISTRATIONS, EVENT_DESCRIPTIONS
 from .keyboards import (
     BACK_BUTTON_TEXT,
+    MY_REGISTRATIONS_TEXT,
     main_menu_keyboard,
     events_keyboard,
     events_info_keyboard,
@@ -22,6 +23,7 @@ from .states import Registration
 from .storage import (
     load_registrations,
     save_registrations,
+    get_registrations_for_user,
     get_user_profile,
     save_user_profile,
 )
@@ -86,6 +88,32 @@ async def process_info_callback(callback: types.CallbackQuery) -> None:
         await callback.message.answer("К сожалению, описание для этого мероприятия пока не добавлено.")
         
     await callback.answer()
+
+
+# ---------- Мои регистрации ----------
+
+@router.message(F.text == MY_REGISTRATIONS_TEXT)
+async def my_registrations(message: types.Message) -> None:
+    regs = get_registrations_for_user(message.from_user.id)
+    if not regs:
+        await message.answer(
+            "Вы пока не зарегистрированы ни на одно мероприятие через этого бота.",
+            reply_markup=main_menu_keyboard(),
+        )
+        return
+
+    regs_sorted = sorted(
+        regs,
+        key=lambda r: (str(r.get("event", "")), str(r.get("registered_at", ""))),
+    )
+    lines: list[str] = []
+    for r in regs_sorted:
+        event = html.escape(str(r.get("event", "")))
+        code = html.escape(str(r.get("reg_code", "")))
+        lines.append(f"• <b>{event}</b> — код: <code>{code}</code>")
+
+    text = "📋 <b>Ваши регистрации:</b>\n\n" + "\n".join(lines)
+    await message.answer(text, parse_mode="HTML", reply_markup=main_menu_keyboard())
 
 
 # ---------- Регистрация: старт ----------

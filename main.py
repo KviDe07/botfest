@@ -6,6 +6,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.config import BOT_TOKEN
 from bot.handlers import router
+from bot.reminders import reminder_scheduler_loop
 
 
 logging.basicConfig(
@@ -21,6 +22,7 @@ async def main() -> None:
     dp.include_router(router)
 
     logger.info("Bot starting...")
+    asyncio.create_task(reminder_scheduler_loop(bot))
     await dp.start_polling(bot)
 
 

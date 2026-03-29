@@ -2,7 +2,7 @@ import json
 import os
 from typing import Any
 
-from .config import DATA_FILE, USERS_FILE
+from .config import DATA_FILE, REMINDERS_SENT_FILE, USERS_FILE
 
 
 def _ensure_parent_dir(path: str) -> None:
@@ -29,6 +29,10 @@ def load_registrations() -> list[dict]:
     return _load(DATA_FILE, [])
 
 
+def get_registrations_for_user(user_id: int) -> list[dict]:
+    return [r for r in load_registrations() if r.get("user_id") == user_id]
+
+
 def save_registrations(data: list[dict]) -> None:
     _save(data, DATA_FILE)
 
@@ -49,3 +53,14 @@ def save_user_profile(user_id: int, name: str, contact: str) -> None:
     users = load_users()
     users[str(user_id)] = {"name": name, "contact": contact}
     save_users(users)
+
+
+def load_reminder_keys() -> set[str]:
+    raw = _load(REMINDERS_SENT_FILE, {"keys": []})
+    return set(raw.get("keys", []))
+
+
+def add_reminder_key(key: str) -> None:
+    keys = load_reminder_keys()
+    keys.add(key)
+    _save({"keys": sorted(keys)}, REMINDERS_SENT_FILE)
