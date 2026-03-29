@@ -80,9 +80,9 @@ async def process_info_callback(callback: types.CallbackQuery) -> None:
     if event_name in EVENT_DESCRIPTIONS:
         desc = EVENT_DESCRIPTIONS[event_name]
         await callback.message.answer(
-            desc, 
-            parse_mode="HTML", 
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
+            desc,
+            parse_mode="HTML",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
         )
     else:
         await callback.message.answer("К сожалению, описание для этого мероприятия пока не добавлено.")

@@ -87,7 +87,7 @@ async def _send_tomorrow_reminders(bot: Bot) -> None:
             f"«<b>{html.escape(event)}</b>»."
         )
         if snippet:
-            body += f"\n\n{html.escape(snippet)}"
+            body += f"\n\n{snippet}"
         body += "\n\nЖдём вас на фестивале!"
         try:
             await bot.send_message(user_id, body, parse_mode="HTML")
