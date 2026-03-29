@@ -1,7 +1,8 @@
 services:
   bot:
     build: .
-    restart: unless-stopped
+    # Авторестарт при сбое и после перезапуска Docker (если контейнер не останавливали вручную)
+    restart: always
     env_file:
       - .env
     volumes:
