@@ -38,7 +38,7 @@ class Registration(StatesGroup):
 def get_main_menu_keyboard():
     """Главное меню после /start"""
     buttons = [
-        [KeyboardButton(text="ℹ️ Информация о мероприятиях")],
+        [KeyboardButton(text="ℹ️ Информация о ")],
         [KeyboardButton(text="📝 Зарегистрироваться на")]
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
