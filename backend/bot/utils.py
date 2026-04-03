@@ -3,15 +3,17 @@ from io import BytesIO
 
 import qrcode
 from aiogram.types import BufferedInputFile
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .storage import load_registrations
+from persistence.models import Registration
 
 
-def generate_reg_code() -> str:
+async def generate_reg_code(session: AsyncSession) -> str:
     while True:
         code = secrets.token_hex(3).upper()
-        existing = load_registrations()
-        if not any(reg.get("reg_code") == code for reg in existing):
+        res = await session.execute(select(Registration.id).where(Registration.reg_code == code))
+        if res.first() is None:
             return code
 
 

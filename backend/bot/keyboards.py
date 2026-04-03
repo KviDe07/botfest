@@ -1,6 +1,6 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 
-from .config import EVENTS, REGISTRATION_EVENTS
+from persistence.models import Event, RegistrationMode
 
 BACK_BUTTON_TEXT = "◀️ Назад"
 MY_REGISTRATIONS_TEXT = "📋 Мои регистрации"
@@ -16,8 +16,9 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
 
-def events_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [[KeyboardButton(text=event)] for event in REGISTRATION_EVENTS]
+def events_keyboard(events: list[Event]) -> ReplyKeyboardMarkup:
+    reg_events = [e for e in events if e.registration_mode != RegistrationMode.none]
+    buttons = [[KeyboardButton(text=e.title)] for e in reg_events]
     buttons.append([KeyboardButton(text=BACK_BUTTON_TEXT)])
     return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
@@ -29,12 +30,14 @@ def name_input_keyboard() -> ReplyKeyboardMarkup:
     )
 
 
-def events_info_keyboard() -> InlineKeyboardMarkup:
+def events_info_keyboard(events: list[Event]) -> InlineKeyboardMarkup:
     buttons = []
-    for i in range(0, len(EVENTS), 2):
-        row = [InlineKeyboardButton(text=EVENTS[i], callback_data=f"info_{EVENTS[i]}")]
-        if i + 1 < len(EVENTS):
-            row.append(InlineKeyboardButton(text=EVENTS[i+1], callback_data=f"info_{EVENTS[i+1]}"))
+    titles = [e.title for e in events]
+    ids = [e.id for e in events]
+    for i in range(0, len(titles), 2):
+        row = [InlineKeyboardButton(text=titles[i], callback_data=f"info_{ids[i]}")]
+        if i + 1 < len(titles):
+            row.append(InlineKeyboardButton(text=titles[i + 1], callback_data=f"info_{ids[i + 1]}"))
         buttons.append(row)
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 

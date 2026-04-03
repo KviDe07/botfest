@@ -4,6 +4,10 @@
 # Data files
 data/
 
+# Schedule image for bot (local only; see backend/media/)
+backend/media/*
+!backend/media/.gitkeep
+
 # Python
 __pycache__/
 *.py[cod]
@@ -20,6 +24,10 @@ build/
 .venv/
 venv/
 env/
+
+# Node (admin panel)
+frontend/admin_web/node_modules/
+frontend/admin_web/dist/
 
 # IDE
 .idea/

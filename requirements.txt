@@ -1,5 +1,0 @@
-﻿aiogram==3.26.0
-qrcode==8.2
-pillow==12.1.1
-python-dotenv==1.1.0
-tzdata==2025.2
