@@ -5,7 +5,7 @@ from html import escape as html_escape
 from aiogram import Router, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile, LinkPreviewOptions
+from aiogram.types import FSInputFile, LinkPreviewOptions, URLInputFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.config import ADMIN_IDS
@@ -27,6 +27,7 @@ from persistence.repos import (
     append_registration,
     get_event_by_id,
     get_event_by_title_active,
+    get_schedule_settings,
     get_user_profile,
     list_active_for_info,
     list_active_for_registration,
@@ -55,19 +56,28 @@ async def cmd_cancel(message: types.Message, state: FSMContext) -> None:
 
 
 @router.message(F.text == "📅 Расписание мероприятий")
-async def schedule_events(message: types.Message) -> None:
+async def schedule_events(message: types.Message, db_session: AsyncSession) -> None:
     import os
 
-    photo_path = "media/schedule.jpg"
-    if os.path.exists(photo_path):
-        photo = FSInputFile(photo_path)
-        await message.answer_photo(
-            photo=photo,
-            caption="Расписание мероприятий Фестиваля космонавтики",
-            reply_markup=main_menu_keyboard(),
-        )
-    else:
-        await message.answer("Фото с расписанием пока не загружено.", reply_markup=main_menu_keyboard())
+    caption, image_ref, missing_msg = await get_schedule_settings(db_session)
+    kb = main_menu_keyboard()
+    try:
+        if image_ref.startswith(("http://", "https://")):
+            await message.answer_photo(
+                photo=URLInputFile(image_ref),
+                caption=caption,
+                reply_markup=kb,
+            )
+        elif os.path.exists(image_ref):
+            await message.answer_photo(
+                photo=FSInputFile(image_ref),
+                caption=caption,
+                reply_markup=kb,
+            )
+        else:
+            await message.answer(missing_msg, reply_markup=kb)
+    except Exception:
+        await message.answer(missing_msg, reply_markup=kb)
 
 
 @router.message(F.text == "ℹ️ Информация о мероприятиях")

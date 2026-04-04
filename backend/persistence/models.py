@@ -63,6 +63,19 @@ class UserProfile(Base):
     )
 
 
+class AppSettings(Base):
+    """Singleton row (id=1): бот и админка читают общие настройки."""
+
+    __tablename__ = "app_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reminder_hour_msk: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    schedule_caption: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    schedule_image_path: Mapped[str] = mapped_column(String(1024), nullable=False, default="media/schedule.jpg")
+    schedule_missing_message: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    admin_brand_title: Mapped[str] = mapped_column(String(256), nullable=False, default="Botfest Admin")
+
+
 class Registration(Base):
     __tablename__ = "registrations"
 

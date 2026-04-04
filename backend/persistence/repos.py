@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from persistence.models import Event, EventDate, Registration, RegistrationMode, ReminderSent, UserProfile
+from persistence.models import AppSettings, Event, EventDate, Registration, RegistrationMode, ReminderSent, UserProfile
 
 
 async def list_active_events_ordered(session: AsyncSession) -> list[Event]:
@@ -88,6 +88,26 @@ async def save_user_profile(session: AsyncSession, user_id: int, name: str, cont
 
 async def get_user_profile(session: AsyncSession, user_id: int) -> UserProfile | None:
     return await session.get(UserProfile, user_id)
+
+
+async def get_reminder_hour_msk(session: AsyncSession) -> int:
+    row = await session.get(AppSettings, 1)
+    if row is None:
+        from bot.config import REMINDER_HOUR_MSK
+
+        return REMINDER_HOUR_MSK
+    return row.reminder_hour_msk
+
+
+async def get_schedule_settings(session: AsyncSession) -> tuple[str, str, str]:
+    row = await session.get(AppSettings, 1)
+    if row is None:
+        return (
+            "Расписание мероприятий Фестиваля космонавтики",
+            "media/schedule.jpg",
+            "Фото с расписанием пока не загружено.",
+        )
+    return (row.schedule_caption, row.schedule_image_path, row.schedule_missing_message)
 
 
 async def load_all_registrations_with_events(session: AsyncSession) -> list[Registration]:

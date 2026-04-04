@@ -9,9 +9,8 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramFor
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from bot.config import REMINDER_HOUR_MSK
 from persistence.models import Event, EventDate, Registration
-from persistence.repos import add_reminder_key, load_reminder_keys
+from persistence.repos import add_reminder_key, get_reminder_hour_msk, load_reminder_keys
 from persistence.session import get_session_factory
 
 logger = logging.getLogger(__name__)
@@ -38,9 +37,11 @@ def _format_ru_date(d: date) -> str:
     return f"{d.day} {_RU_MONTHS_GEN[d.month]} {d.year} г."
 
 
-def _seconds_until_next_reminder_slot() -> float:
+async def _seconds_until_next_reminder_slot(factory) -> float:
+    async with factory() as session:
+        hour = await get_reminder_hour_msk(session)
     now = datetime.now(MSK)
-    run_today = now.replace(hour=REMINDER_HOUR_MSK, minute=0, second=0, microsecond=0)
+    run_today = now.replace(hour=hour, minute=0, second=0, microsecond=0)
     if now < run_today:
         next_run = run_today
     else:
@@ -51,7 +52,6 @@ def _seconds_until_next_reminder_slot() -> float:
 async def _send_tomorrow_reminders(bot: Bot) -> None:
     tomorrow = datetime.now(MSK).date() + timedelta(days=1)
     factory = get_session_factory()
-
     async with factory() as session:
         sent_keys = await load_reminder_keys(session)
 
@@ -114,10 +114,13 @@ async def _send_tomorrow_reminders(bot: Bot) -> None:
 
 
 async def reminder_scheduler_loop(bot: Bot) -> None:
-    logger.info("Reminder scheduler started (MSK hour=%s)", REMINDER_HOUR_MSK)
+    factory = get_session_factory()
+    async with factory() as session:
+        hour0 = await get_reminder_hour_msk(session)
+    logger.info("Reminder scheduler started (MSK hour=%s)", hour0)
     while True:
         try:
-            delay = _seconds_until_next_reminder_slot()
+            delay = await _seconds_until_next_reminder_slot(factory)
             await asyncio.sleep(delay)
             await _send_tomorrow_reminders(bot)
         except asyncio.CancelledError:
