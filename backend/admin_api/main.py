@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from admin_api.routers import analytics, auth, events, registrations
+from admin_api.routers import analytics, auth, events, registrations, settings as settings_router
 from admin_api.settings import get_settings
 from persistence.session import get_engine
 
@@ -36,6 +36,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(events.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(registrations.router, prefix="/api")
+app.include_router(settings_router.router, prefix="/api")
 
 
 @app.get("/api/health")
