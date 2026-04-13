@@ -123,3 +123,4 @@ class AnalyticsSummary(BaseModel):
     unique_names: int
     by_event: list[dict]
     by_day: list[dict]
+    new_users_by_day: list[dict]
