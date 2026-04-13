@@ -12,17 +12,16 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import {
   Users,
-  Calendar,
   TrendingUp,
   Activity,
   BarChart3,
   PieChart as PieChartIcon,
   ContactRound,
+  UserPlus,
 } from "lucide-react";
 
 type Summary = {
@@ -31,6 +30,7 @@ type Summary = {
   unique_names: number;
   by_event: { event_title: string; count: number }[];
   by_day: { day: string; count: number }[];
+  new_users_by_day: { day: string; count: number }[];
 };
 
 const COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#6366f1"];
@@ -209,7 +209,7 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Line Chart - By Day */}
+        {/* Daily dynamics — registrations vs new users */}
         <div className="card lg:col-span-2">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-green-100 rounded-lg">
@@ -217,77 +217,76 @@ export default function Dashboard() {
             </div>
             <h2 className="text-xl font-bold text-gray-900">Динамика по дням</h2>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data.by_day}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                }}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="#10b981"
-                strokeWidth={3}
-                dot={{ fill: "#10b981", r: 5 }}
-                activeDot={{ r: 7 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Detailed Table */}
-      <div className="card">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Calendar className="w-5 h-5 text-indigo-600" />
+          <div className="flex flex-col gap-10">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-1.5 bg-emerald-50 rounded-md">
+                  <BarChart3 className="w-4 h-4 text-emerald-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-800">
+                  Регистрации по дням
+                </h3>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={data.by_day}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    name="Регистрации"
+                    stroke="#10b981"
+                    strokeWidth={3}
+                    dot={{ fill: "#10b981", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-1.5 bg-violet-50 rounded-md">
+                  <UserPlus className="w-4 h-4 text-violet-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-800">
+                  Новые пользователи по дням
+                </h3>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={data.new_users_by_day}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    name="Пользователи"
+                    stroke="#7c3aed"
+                    strokeWidth={3}
+                    dot={{ fill: "#7c3aed", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900">Детальная статистика</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b-2 border-gray-200">
-                <th className="text-left py-3 px-4 text-gray-700 font-semibold">
-                  Мероприятие
-                </th>
-                <th className="text-right py-3 px-4 text-gray-700 font-semibold">
-                  Регистраций
-                </th>
-                <th className="text-right py-3 px-4 text-gray-700 font-semibold">
-                  Доля, %
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.by_event.map((row, idx) => (
-                <tr
-                  key={row.event_title}
-                  className="border-b border-gray-100 hover:bg-blue-50 transition-colors"
-                >
-                  <td className="py-3 px-4 font-medium text-gray-900">
-                    {row.event_title}
-                  </td>
-                  <td className="py-3 px-4 text-right text-gray-700">
-                    {row.count}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-                      {((row.count / data.total_registrations) * 100).toFixed(1)}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

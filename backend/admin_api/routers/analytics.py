@@ -44,10 +44,30 @@ async def analytics_summary(
         day_str = d.date().isoformat() if d is not None else ""
         by_day.append({"day": day_str, "count": int(c)})
 
+    first_reg_subq = (
+        select(Registration.user_id, func.min(Registration.registered_at).label("first_at"))
+        .group_by(Registration.user_id)
+        .subquery()
+    )
+    user_day_col = func.date_trunc("day", first_reg_subq.c.first_at)
+    q_new_users = (
+        select(user_day_col, func.count())
+        .select_from(first_reg_subq)
+        .group_by(user_day_col)
+        .order_by(user_day_col)
+    )
+    res_new_users = await session.execute(q_new_users)
+    new_users_by_day = []
+    for row in res_new_users.all():
+        d, c = row[0], row[1]
+        day_str = d.date().isoformat() if d is not None else ""
+        new_users_by_day.append({"day": day_str, "count": int(c)})
+
     return AnalyticsSummary(
         total_registrations=int(total),
         unique_users=int(unique_users),
         unique_names=int(unique_names),
         by_event=by_event,
         by_day=by_day,
+        new_users_by_day=new_users_by_day,
     )
